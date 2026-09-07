@@ -1,0 +1,10 @@
+export default function StudentRecommendationsPage() {
+  return (
+    <div className="page-shell">
+      <div className="card">
+        <h1>Recommendations</h1>
+        <p className="muted">This area is ready for the personalized recommendation summaries.</p>
+      </div>
+    </div>
+  );
+}
