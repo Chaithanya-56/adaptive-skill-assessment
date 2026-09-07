@@ -1,6 +1,9 @@
 const { pool } = require('../config/db');
 const { findSubjectById } = require('./subjectService');
-const { buildTopicPerformanceRows } = require('./recommendationService');
+const {
+  buildTopicPerformanceRows,
+  generateRecommendationsForAssessment
+} = require('./recommendationService');
 
 const VALID_OPTIONS = ['A', 'B', 'C', 'D'];
 const DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD'];
@@ -397,32 +400,7 @@ async function submitAssessment(userId, assessmentId) {
       );
     }
 
-    const recommendations = [];
-    for (const t of topicRows) {
-      let priority = null;
-      let templateLevel = null;
-      if (t.performance_level === 'WEAK') {
-        priority = 'HIGH';
-        templateLevel = 'WEAK';
-      } else if (t.performance_level === 'AVERAGE') {
-        priority = 'MEDIUM';
-        templateLevel = 'AVERAGE';
-      }
-      if (!priority) continue;
-      const text = deterministicRecommendation(templateLevel, t.topic_name || `topic ${t.topic_id}`);
-      const [result] = await conn.query(
-        'INSERT INTO Recommendations (assessment_id, user_id, topic_id, recommendation_text, priority_level) VALUES (?, ?, ?, ?, ?)',
-        [assessmentId, userId, t.topic_id, text, priority]
-      );
-      recommendations.push({
-        recommendation_id: result.insertId,
-        topic_id: t.topic_id,
-        topic_name: t.topic_name,
-        performance_level: t.performance_level,
-        recommendation_text: text,
-        priority_level: priority
-      });
-    }
+    const recommendations = await generateRecommendationsForAssessment(assessmentId, userId, topicRows, conn);
 
     const [finalRows] = await conn.query(
       'SELECT assessment_id, user_id, subject_id, started_at, submitted_at, status, total_questions, score, percentage, assessment_level FROM Assessments WHERE assessment_id = ? LIMIT 1',
@@ -442,27 +420,6 @@ async function submitAssessment(userId, assessmentId) {
   } finally {
     conn.release();
   }
-}
-
-function deterministicRecommendation(level, topicName) {
-  const templates = {
-    WEAK: [
-      `Strengthen the basics of ${topicName} with introductory tutorials and worked examples. Review definitions, core components, and simple practice problems before advancing.`,
-      `For ${topicName}, go back to fundamentals. Draw concept maps, study from beginner resources, and attempt low-difficulty questions until you consistently get them right.`,
-      `${topicName} performance indicates foundational gaps. Dedicate focused study time using beginner-level material, flashcards for terminology, and step-by-step walkthroughs.`
-    ],
-    AVERAGE: [
-      `Solidify your understanding of ${topicName} by practicing a mix of medium-difficulty questions and reviewing the edge cases you missed.`,
-      `For ${topicName}, move into applied practice: attempt scenario-based questions, compare related concepts, and time yourself to build confidence.`,
-      `${topicName} knowledge is developing. Target medium-level drills and revisit any subtopics that feel shaky, then review explanations after each attempt.`
-    ]
-  };
-  const arr = templates[level] || [];
-  if (arr.length === 0) return `Review ${topicName}.`;
-  const idx = Math.abs(
-    topicName.split('').reduce((acc, ch, i) => acc + ch.charCodeAt(0) * (i + 1), 0)
-  ) % arr.length;
-  return arr[idx];
 }
 
 async function getAssessmentResult(userId, assessmentId) {
