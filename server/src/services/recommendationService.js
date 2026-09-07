@@ -164,7 +164,15 @@ async function getStudentRecommendations(userId) {
     [userId]
   );
 
-  return rows.map((row) => ({
+  const deduped = new Map();
+  for (const row of rows) {
+    const topicKey = Number(row.topic_id) || row.topic_name || row.recommendation_id;
+    if (!deduped.has(topicKey)) {
+      deduped.set(topicKey, row);
+    }
+  }
+
+  return [...deduped.values()].map((row) => ({
     recommendation_id: row.recommendation_id,
     assessment_id: row.assessment_id,
     subject_id: row.subject_id,

@@ -3,7 +3,8 @@ const {
   getAssessment,
   answerQuestion,
   submitAssessment,
-  getAssessmentResult
+  getAssessmentResult,
+  getStudentAssessmentHistory
 } = require('../services/assessmentService');
 
 function validateStart(body) {
@@ -243,10 +244,31 @@ async function handleResult(req, res) {
   }
 }
 
+async function handleList(req, res) {
+  try {
+    const result = await getStudentAssessmentHistory(req.user.user_id);
+    return res.status(200).json({
+      success: true,
+      message: 'Assessments retrieved successfully',
+      data: {
+        count: result.assessments.length,
+        assessments: result.assessments
+      }
+    });
+  } catch (error) {
+    console.error('handleList error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error while retrieving assessments'
+    });
+  }
+}
+
 module.exports = {
   handleStart,
   handleGet,
   handleAnswer,
   handleSubmit,
-  handleResult
+  handleResult,
+  handleList
 };

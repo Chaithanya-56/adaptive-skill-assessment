@@ -467,12 +467,50 @@ async function getAssessmentResult(userId, assessmentId) {
   };
 }
 
+async function getStudentAssessmentHistory(userId) {
+  const [rows] = await pool.query(
+    `SELECT
+       a.assessment_id,
+       a.subject_id,
+       s.subject_name,
+       a.started_at,
+       a.submitted_at,
+       a.status,
+       a.total_questions,
+       a.score,
+       a.percentage,
+       a.assessment_level
+     FROM Assessments a
+     LEFT JOIN Subjects s ON s.subject_id = a.subject_id
+     WHERE a.user_id = ?
+     ORDER BY a.submitted_at DESC, a.started_at DESC, a.assessment_id DESC`,
+    [userId]
+  );
+
+  return {
+    success: true,
+    assessments: rows.map((row) => ({
+      assessment_id: row.assessment_id,
+      subject_id: row.subject_id,
+      subject_name: row.subject_name,
+      started_at: row.started_at,
+      submitted_at: row.submitted_at,
+      status: row.status,
+      total_questions: Number(row.total_questions || 0),
+      score: Number(row.score || 0),
+      percentage: Number(row.percentage || 0),
+      assessment_level: row.assessment_level
+    }))
+  };
+}
+
 module.exports = {
   startAssessment,
   getAssessment,
   answerQuestion,
   submitAssessment,
   getAssessmentResult,
+  getStudentAssessmentHistory,
   loadAssessmentById,
   VALID_OPTIONS,
   DEFAULT_TOTAL_QUESTIONS,

@@ -1,9 +1,10 @@
 const express = require('express');
-const { handleStart, handleGet, handleAnswer, handleSubmit, handleResult } = require('../controllers/assessmentController');
+const { handleStart, handleGet, handleAnswer, handleSubmit, handleResult, handleList } = require('../controllers/assessmentController');
 const { authenticate, requireRole } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+router.get('/', authenticate, requireRole('STUDENT'), handleList);
 router.post('/start', authenticate, requireRole('STUDENT'), handleStart);
 router.get('/:id', authenticate, requireRole('STUDENT'), handleGet);
 router.post('/:id/answers', authenticate, requireRole('STUDENT'), handleAnswer);
