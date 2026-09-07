@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getStudentRecommendations, getLearningSummary } from '../services/studentApi';
 
 export default function StudentRecommendationsPage() {
@@ -30,6 +30,17 @@ export default function StudentRecommendationsPage() {
     loadData();
   }, []);
 
+  const uniqueRecommendations = useMemo(() => {
+    const deduped = new Map();
+    for (const item of recommendations) {
+      const key = Number(item.topic_id) || item.topic_name || item.recommendation_id;
+      if (!deduped.has(key)) {
+        deduped.set(key, item);
+      }
+    }
+    return [...deduped.values()];
+  }, [recommendations]);
+
   return (
     <div className="page-shell">
       <div className="card list-card">
@@ -49,14 +60,14 @@ export default function StudentRecommendationsPage() {
               </div>
             )}
 
-            {recommendations.length === 0 ? (
+            {uniqueRecommendations.length === 0 ? (
               <div className="empty-state">
                 <p>No recommendations are available yet. Complete an assessment to generate personalized guidance.</p>
               </div>
             ) : (
               <div className="recommendation-list">
-                {recommendations.map((item) => (
-                  <div key={item.recommendation_id} className="recommendation-item">
+                {uniqueRecommendations.map((item) => (
+                  <div key={item.recommendation_id || item.topic_id || item.topic_name} className="recommendation-item">
                     <div className="recommendation-topline">
                       <span className="chip chip-priority">{item.priority_level || 'MEDIUM'}</span>
                       <span>{item.topic_name || 'Topic'}</span>

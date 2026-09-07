@@ -41,6 +41,11 @@ export async function getAssessmentResults(assessmentId) {
   return response?.data?.data || {};
 }
 
+export async function getStudentAssessments() {
+  const response = await api.get('/assessments');
+  return response?.data?.data?.assessments || [];
+}
+
 export async function getStudentRecommendations() {
   const response = await api.get('/recommendations');
   return response?.data?.data?.recommendations || [];
