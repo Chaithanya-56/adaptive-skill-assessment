@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+client/node_modules/
+server/node_modules/
+java-engine/target/
+.idea/
+.vscode/
