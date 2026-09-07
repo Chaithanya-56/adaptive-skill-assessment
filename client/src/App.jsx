@@ -9,12 +9,14 @@ import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentSubjectsPage from './pages/StudentSubjectsPage';
 import StudentAssessmentsPage from './pages/StudentAssessmentsPage';
+import StudentAssessmentPage from './pages/StudentAssessmentPage';
+import StudentAssessmentResultsPage from './pages/StudentAssessmentResultsPage';
 import StudentRecommendationsPage from './pages/StudentRecommendationsPage';
 import AdminSubjectsPage from './pages/AdminSubjectsPage';
 import AdminQuestionsPage from './pages/AdminQuestionsPage';
 
 export default function App() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const redirectHome = () => {
     if (!isAuthenticated) {
@@ -23,6 +25,17 @@ export default function App() {
 
     return <Navigate to={user?.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard'} replace />;
   };
+
+  if (isLoading) {
+    return (
+      <div className="page-shell">
+        <div className="card auth-card">
+          <h1>Loading your session...</h1>
+          <p className="muted">Preparing your adaptive learning dashboard.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -37,6 +50,8 @@ export default function App() {
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/subjects" element={<StudentSubjectsPage />} />
             <Route path="/student/assessments" element={<StudentAssessmentsPage />} />
+            <Route path="/student/assessment/:assessmentId" element={<StudentAssessmentPage />} />
+            <Route path="/student/assessment/:assessmentId/results" element={<StudentAssessmentResultsPage />} />
             <Route path="/student/recommendations" element={<StudentRecommendationsPage />} />
           </Route>
 
