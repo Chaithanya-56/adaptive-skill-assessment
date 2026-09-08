@@ -1,7 +1,7 @@
 USE adaptive_skill_assessment;
 
 INSERT INTO Users (name, email, password_hash, role) VALUES
-('Admin User', 'admin@adaptive.com', '$2b$10$adminplaceholderhashvalue', 'ADMIN'),
+('Admin User', 'admin@adaptive.com', '$2b$10$AYm6xfgp4e3oUtHi499lFOonXVng4rqucbNdvxoHUIOKaO4aX0v6K', 'ADMIN'),
 ('Student Demo', 'student@adaptive.com', '$2b$10$studentplaceholderhashvalue', 'STUDENT');
 
 INSERT INTO Subjects (subject_name, description) VALUES
