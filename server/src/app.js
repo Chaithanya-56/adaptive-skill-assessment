@@ -9,8 +9,20 @@ const assessmentRoutes = require('./routes/assessmentRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-app.use(cors());
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Origin is not allowed by CORS'));
+  }
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {

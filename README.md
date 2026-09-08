@@ -144,7 +144,7 @@ cd "C:\path\to\Assessment learning and recommendation\client"
 npm run dev
 ```
 
-Vite normally serves the application at `http://localhost:5173`. The frontend defaults to `http://localhost:5000/api` for backend requests. To use another API URL, create `client/.env` with `VITE_API_BASE_URL`; this file is ignored by Git.
+Vite normally serves the application at `http://localhost:5173`. The frontend defaults to `http://localhost:5000/api` for backend requests. To use another API URL, copy `client/.env.example` to `client/.env` and set `VITE_API_BASE_URL`; this file is ignored by Git.
 
 ## Workflows
 
@@ -186,3 +186,34 @@ The health endpoint reports both server and database status.
 - `STUDENT` and `ADMIN` roles are enforced in both frontend route guards and backend middleware.
 - Environment files, dependency directories, build output, logs, Java targets, and coverage output are ignored by Git.
 - Replace development secrets and credentials before deploying.
+
+## Deployment Guidance
+
+This repository is deployment-ready but is not deployed by this project. Deploy the backend and frontend separately, provide environment variables through the hosting provider, and configure the frontend to use the deployed backend URL.
+
+Backend production settings:
+
+- Set `PORT` to the host-provided port when required.
+- Set `CORS_ORIGIN` to the frontend origin. Multiple comma-separated origins are supported.
+- Set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `DB_CONNECTION_LIMIT` for the managed MySQL instance.
+- Set a long, private `JWT_SECRET`.
+- Do not run the destructive `database/schema.sql` reset against production data.
+- Run `npm start` from `server/`.
+
+Frontend production settings:
+
+- Set `VITE_API_BASE_URL` to the deployed backend API base URL, including `/api`.
+- Run `npm run build` from `client/` and serve the generated `dist/` directory with SPA fallback support.
+- Configure the host to forward unknown frontend routes to `index.html` so React Router routes continue to work after refresh.
+
+## Resume and Interview Summary
+
+**Project:** Adaptive Skill Assessment and Learning Recommendation System
+
+**Summary:** Built a full-stack assessment platform that converts question-level responses into topic performance and personalized learning recommendations.
+
+**Key contributions:** Implemented JWT authentication, student/admin role protection, assessment lifecycle and scoring, topic-level performance analysis, recommendation generation, admin question-bank CRUD, responsive React workflows, and production-oriented error/loading handling.
+
+**Technical challenges solved:** Kept client and server route contracts aligned, protected answer data from student question responses, handled duplicate assessment actions and expired sessions, and diagnosed stale backend processes during API validation.
+
+**Interview focus:** Explain the request flow from React page to Axios client, Express route/controller/service, MySQL transaction, and result/recommendation response. Be clear that the Java module is currently separate and its Node integration service remains a placeholder.
