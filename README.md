@@ -206,14 +206,4 @@ Frontend production settings:
 - Run `npm run build` from `client/` and serve the generated `dist/` directory with SPA fallback support.
 - Configure the host to forward unknown frontend routes to `index.html` so React Router routes continue to work after refresh.
 
-## Resume and Interview Summary
 
-**Project:** Adaptive Skill Assessment and Learning Recommendation System
-
-**Summary:** Built a full-stack assessment platform that converts question-level responses into topic performance and personalized learning recommendations.
-
-**Key contributions:** Implemented JWT authentication, student/admin role protection, assessment lifecycle and scoring, topic-level performance analysis, recommendation generation, admin question-bank CRUD, responsive React workflows, and production-oriented error/loading handling.
-
-**Technical challenges solved:** Kept client and server route contracts aligned, protected answer data from student question responses, handled duplicate assessment actions and expired sessions, and diagnosed stale backend processes during API validation.
-
-**Interview focus:** Explain the request flow from React page to Axios client, Express route/controller/service, MySQL transaction, and result/recommendation response. Be clear that the Java module is currently separate and its Node integration service remains a placeholder.
