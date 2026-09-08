@@ -7,6 +7,7 @@ import {
   getTopicsBySubject,
   updateQuestion,
 } from '../services/adminApi';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const initialForm = {
   subject_id: '',
@@ -33,6 +34,8 @@ export default function AdminQuestionsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadSubjects = async () => {
     const list = await getSubjects();
@@ -85,7 +88,7 @@ export default function AdminQuestionsPage() {
         await loadSubjects();
         await loadQuestions();
       } catch (err) {
-        setError(err?.response?.data?.message || 'Unable to load question bank.');
+        setError(getErrorMessage(err, 'Unable to load question bank.'));
       } finally {
         setLoading(false);
       }
@@ -141,18 +144,19 @@ export default function AdminQuestionsPage() {
     };
 
     if (!payload.subject_id || !payload.topic_id || !payload.question_text || !payload.option_a || !payload.option_b || !payload.option_c || !payload.option_d) {
-      setError('Please complete all required fields.');
+      setError('Complete the subject, topic, question, and all four options.');
       return;
     }
 
     if (!['A', 'B', 'C', 'D'].includes(payload.correct_option)) {
-      setError('Correct option must be A, B, C, or D.');
+      setError('Choose a valid correct option.');
       return;
     }
 
     try {
       setError('');
       setSuccess('');
+      setSaving(true);
 
       if (editingQuestionId) {
         await updateQuestion(editingQuestionId, payload);
@@ -165,7 +169,9 @@ export default function AdminQuestionsPage() {
       resetForm();
       await loadQuestions(filters);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Unable to save question.');
+      setError(getErrorMessage(err, 'Unable to save question.'));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -196,12 +202,15 @@ export default function AdminQuestionsPage() {
     try {
       setError('');
       setSuccess('');
+      setDeleting(true);
       await deleteQuestion(deleteTargetId);
       setDeleteTargetId(null);
       setSuccess('Question deleted successfully.');
       await loadQuestions(filters);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Unable to delete question.');
+      setError(getErrorMessage(err, 'Unable to delete question.'));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -295,9 +304,9 @@ export default function AdminQuestionsPage() {
                 <label>
                   Difficulty
                   <select value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value })}>
-                    <option value="BEGINNER">BEGINNER</option>
-                    <option value="INTERMEDIATE">INTERMEDIATE</option>
-                    <option value="ADVANCED">ADVANCED</option>
+                    <option value="EASY">EASY</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HARD">HARD</option>
                   </select>
                 </label>
               </div>
@@ -313,8 +322,8 @@ export default function AdminQuestionsPage() {
               </label>
 
               <div className="action-row">
-                <button type="submit" className="primary-button">
-                  {editingQuestionId ? 'Update question' : 'Save question'}
+                <button type="submit" className="primary-button" disabled={saving || deleting}>
+                  {saving ? 'Saving...' : editingQuestionId ? 'Update question' : 'Save question'}
                 </button>
                 {editingQuestionId && (
                   <button type="button" className="secondary-button" onClick={resetForm}>
@@ -360,9 +369,9 @@ export default function AdminQuestionsPage() {
               Difficulty
               <select value={filters.difficulty} onChange={(event) => setFilters({ ...filters, difficulty: event.target.value })}>
                 <option value="">All levels</option>
-                <option value="BEGINNER">BEGINNER</option>
-                <option value="INTERMEDIATE">INTERMEDIATE</option>
-                <option value="ADVANCED">ADVANCED</option>
+                <option value="EASY">EASY</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HARD">HARD</option>
               </select>
             </label>
 
@@ -396,6 +405,7 @@ export default function AdminQuestionsPage() {
                               type="button"
                               className="danger-button"
                               onClick={() => setDeleteTargetId(question.question_id ?? question.id)}
+                              disabled={saving || deleting}
                             >
                               Delete
                             </button>
@@ -414,7 +424,9 @@ export default function AdminQuestionsPage() {
           <div className="confirm-box">
             <p>Delete this question permanently?</p>
             <div className="action-row small-gap">
-              <button type="button" className="danger-button" onClick={handleDelete}>Confirm delete</button>
+              <button type="button" className="danger-button" onClick={handleDelete} disabled={saving || deleting}>
+                {deleting ? 'Deleting...' : 'Confirm delete'}
+              </button>
               <button type="button" className="secondary-button" onClick={() => setDeleteTargetId(null)}>
                 Cancel
               </button>

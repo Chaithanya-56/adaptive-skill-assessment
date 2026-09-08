@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getErrorMessage } from '../utils/errorMessage';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -23,6 +24,12 @@ export default function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
+
+    if (!form.email.trim() || !form.password) {
+      setError('Enter your email and password to continue.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -36,8 +43,7 @@ export default function LoginPage() {
       const destination = authUser.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
       navigate(destination, { replace: true });
     } catch (submitError) {
-      const message = submitError?.response?.data?.message || 'Login failed. Please try again.';
-      setError(message);
+      setError(getErrorMessage(submitError, 'Login failed. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }

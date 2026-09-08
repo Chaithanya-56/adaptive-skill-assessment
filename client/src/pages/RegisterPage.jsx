@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const emptyForm = {
   name: '',
@@ -29,6 +30,16 @@ export default function RegisterPage() {
     event.preventDefault();
     setError('');
 
+    if (!form.name.trim() || !form.email.trim() || !form.password) {
+      setError('Complete all fields to create your account.');
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match.');
       return;
@@ -49,8 +60,7 @@ export default function RegisterPage() {
         navigate('/login', { replace: true });
       }
     } catch (submitError) {
-      const message = submitError?.response?.data?.message || 'Registration failed. Please try again.';
-      setError(message);
+      setError(getErrorMessage(submitError, 'Registration failed. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }

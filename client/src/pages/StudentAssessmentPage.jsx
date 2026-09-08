@@ -21,6 +21,7 @@ export default function StudentAssessmentPage() {
   const answeredCount = Object.keys(answerMap).length;
   const totalQuestions = Number(assessment?.total_questions || questions.length || 0);
   const progressPercent = totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const hasUnansweredQuestions = answeredCount < questions.length;
 
   const fetchAssessment = async () => {
     setLoading(true);
@@ -225,6 +226,12 @@ export default function StudentAssessmentPage() {
         </div>
 
         {error && <div className="error-banner">{error}</div>}
+
+        {hasUnansweredQuestions && (
+          <div className="inline-status">
+            {questions.length - answeredCount} question{questions.length - answeredCount === 1 ? '' : 's'} unanswered. You can submit now; unanswered questions are handled by the assessment service.
+          </div>
+        )}
 
         <div className="assessment-actions">
           <button type="button" className="secondary-button" onClick={() => setCurrentIndex((value) => Math.max(0, value - 1))} disabled={!canGoPrevious}>

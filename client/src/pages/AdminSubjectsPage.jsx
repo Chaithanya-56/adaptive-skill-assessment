@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createSubject, createTopic, getSubjects, getTopicsBySubject } from '../services/adminApi';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const subjectFormInitialState = {
   subject_name: '',
@@ -20,6 +21,8 @@ export default function AdminSubjectsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [savingSubject, setSavingSubject] = useState(false);
+  const [savingTopic, setSavingTopic] = useState(false);
 
   const refreshSubjects = async () => {
     const list = await getSubjects();
@@ -88,6 +91,7 @@ export default function AdminSubjectsPage() {
     try {
       setError('');
       setSuccess('');
+      setSavingSubject(true);
       await createSubject({
         subject_name: trimmedName,
         description: subjectForm.description.trim(),
@@ -97,7 +101,9 @@ export default function AdminSubjectsPage() {
       await refreshSubjects();
       setSuccess('Subject created successfully.');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Unable to create subject.');
+      setError(getErrorMessage(err, 'Unable to create subject.'));
+    } finally {
+      setSavingSubject(false);
     }
   };
 
@@ -119,6 +125,7 @@ export default function AdminSubjectsPage() {
     try {
       setError('');
       setSuccess('');
+      setSavingTopic(true);
       await createTopic(selectedSubjectId, {
         topic_name: trimmedName,
         description: topicForm.description.trim(),
@@ -129,7 +136,9 @@ export default function AdminSubjectsPage() {
       setTopics(nextTopics);
       setSuccess('Topic created successfully.');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Unable to create topic.');
+      setError(getErrorMessage(err, 'Unable to create topic.'));
+    } finally {
+      setSavingTopic(false);
     }
   };
 
@@ -166,7 +175,9 @@ export default function AdminSubjectsPage() {
                     rows={4}
                   />
                 </label>
-                <button type="submit" className="primary-button">Save subject</button>
+                <button type="submit" className="primary-button" disabled={savingSubject || savingTopic}>
+                  {savingSubject ? 'Saving...' : 'Save subject'}
+                </button>
               </form>
             </div>
 
@@ -206,7 +217,9 @@ export default function AdminSubjectsPage() {
                         rows={4}
                       />
                     </label>
-                    <button type="submit" className="primary-button">Add topic</button>
+                    <button type="submit" className="primary-button" disabled={savingSubject || savingTopic}>
+                      {savingTopic ? 'Saving...' : 'Add topic'}
+                    </button>
                   </form>
 
                   <div className="admin-list small-gap">

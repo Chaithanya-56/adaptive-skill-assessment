@@ -32,6 +32,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .app-shell {
   min-height: calc(100vh - 72px);
   padding: 24px;
@@ -558,6 +563,7 @@ p {
 
 table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -640,9 +646,14 @@ th {
 }
 
 @media (max-width: 640px) {
+  .app-shell {
+    padding: 14px;
+  }
+
   .topbar {
     flex-direction: column;
     align-items: flex-start;
+    padding: 14px 18px;
   }
 
   .nav-links {
@@ -650,7 +661,37 @@ th {
     justify-content: flex-start;
   }
 
-  .app-shell {
-    padding: 18px;
+  .card {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .page-shell {
+    align-items: flex-start;
+    min-height: calc(100vh - 100px);
+  }
+
+  .section-header,
+  .assessment-header,
+  .subject-item,
+  .recommendation-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .assessment-actions .action-spacer {
+    display: none;
+  }
+
+  .assessment-actions > button {
+    flex: 1 1 120px;
+  }
+
+  .stack-row.dashboard-actions {
+    justify-content: flex-start;
   }
 }
